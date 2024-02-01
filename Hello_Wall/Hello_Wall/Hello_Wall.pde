@@ -72,23 +72,18 @@ float             edgeTopLeftY                        = 0.0;
 float             edgeBottomRightX                    = worldWidth; 
 float             edgeBottomRightY                    = worldHeight;
 
+
+int[][] map = {
+  {1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},{1,0,1,0,1,0,0,0,0,0,1,0,1,1,0,1,0,0,1,0,0,0,0,0,0,1},{1,0,1,0,0,0,1,1,1,0,1,0,0,1,0,1,1,0,1,0,1,1,1,0,1,1},{1,0,1,0,1,0,1,0,1,0,1,0,1,1,0,0,0,0,1,0,1,0,1,0,0,1},{1,0,1,0,1,0,1,0,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,1,0,1},{1,0,1,1,1,0,1,0,1,0,1,0,1,1,1,0,1,0,1,1,1,1,1,0,0,1},{1,0,0,0,0,0,0,0,1,0,1,0,0,1,0,0,1,0,1,0,0,0,0,0,1,1},{1,0,1,1,1,1,1,1,1,0,1,1,0,1,1,0,1,0,0,0,1,0,1,0,0,1},{1,0,1,0,0,0,1,0,1,0,0,1,0,0,1,0,1,0,1,1,1,1,1,1,0,1},{1,0,1,1,1,0,1,0,1,1,0,1,1,0,1,0,1,0,1,0,0,0,0,0,0,1},{1,0,0,0,1,0,1,0,1,0,0,1,0,0,1,0,1,0,1,0,1,0,1,0,1,1},{1,0,1,0,1,0,1,0,1,0,1,1,0,1,1,0,1,0,1,0,1,0,1,1,1,1},{1,0,1,1,1,0,1,0,1,0,0,0,0,1,0,0,1,0,1,0,1,0,0,0,0,1},{1,1,1,1,1,0,1,0,0,0,0,0,0,1,0,0,0,0,1,0,1,0,0,0,0,1},{1,0,0,0,0,0,1,1,1,1,1,1,0,1,0,1,1,0,1,0,1,1,1,1,0,1},{1,0,1,1,1,1,1,0,0,0,0,0,0,1,0,0,1,0,1,0,1,0,0,1,0,1},{1,0,1,0,1,0,1,0,1,1,1,1,1,1,1,1,1,0,0,0,1,0,1,1,0,1},{1,0,1,0,1,1,1,0,1,0,1,0,0,0,1,0,0,0,1,1,1,0,1,1,0,1},{1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,0,1,0,0,0,0,0,0,1},{1,0,1,1,1,1,1,1,1,1,1,0,1,0,0,0,1,0,1,0,1,1,0,1,0,1},{1,0,1,0,1,0,0,0,0,0,0,0,1,1,1,1,1,0,1,0,1,1,0,1,0,1},{1,1,1,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,1,0,0,1,0,1},{1,0,0,0,0,0,1,0,0,0,1,0,1,0,1,1,1,1,1,1,1,0,1,1,0,1},{1,0,1,0,1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0},{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}};
+  
+
 /* Initialization of virtual tool */
 HVirtualCoupling  s;
 
 /* Hello Wall*/
 //FBox wall;
 FCircle ball;
-FPoly wall1;
-FPoly wall2;
-FPoly wall3;
-FPoly wall4;
-FPoly wall5;
-FPoly wall6;
-FPoly wall7;
-FPoly wall8;
-FPoly wall9;
-FPoly wall10;
-FPoly wall11;
+ArrayList<FPoly> walls= new ArrayList<FPoly>();
 
 /* end elements definition *********************************************************************************************/
 
@@ -113,7 +108,7 @@ void setup(){
    *      linux:        haplyBoard = new Board(this, "/dev/ttyUSB0", 0);
    *      mac:          haplyBoard = new Board(this, "/dev/cu.usbmodem1411", 0);
    */
-  haplyBoard          = new Board(this, Serial.list()[2], 0);
+  haplyBoard          = new Board(this, Serial.list()[0], 0);
   widgetOne           = new Device(widgetOneID, haplyBoard);
   pantograph          = new Pantograph();
   
@@ -126,6 +121,7 @@ void setup(){
 
   widgetOne.add_encoder(1, CCW, 241, 10752, 2);
   widgetOne.add_encoder(2, CW, -61, 10752, 1);
+  
   
   widgetOne.device_set_parameters();
   
@@ -143,7 +139,7 @@ void setup(){
   //wall.setStatic(true);  
   //world.add(wall);
   
-  ball = new FCircle(0.75);
+  ball = new FCircle(0.5);
   ball.setPosition(6, 2);
   ball.setFill(0,0,255);
   ball.addForce(5,0);
@@ -151,143 +147,38 @@ void setup(){
   //ball.setHaptic(true);
   //ball.setSensor(true);
   world.add(ball);
-  
-  wall1 = new FPoly();
-  wall1.vertex(2,3);
-  wall1.vertex(2,13);
-  wall1.vertex(13,13);
-  wall1.vertex(13,10);
-  wall1.vertex(12.5, 10);
-  wall1.vertex(12.5, 12.5);
-  wall1.vertex(2.5, 12.5);
-  wall1.vertex(2.5, 3);
-  wall1.setStaticBody(true);
-  wall1.setFill(0,0,255);
-  world.add(wall1);
-  
-  wall2 = new FPoly();
-  wall2.vertex(11, 8);
-  wall2.vertex(13, 8);
-  wall2.vertex(13, 3);
-  wall2.vertex(6, 3);
-  wall2.vertex(6, 5);
-  wall2.vertex(8, 5);
-  wall2.vertex(8, 4.5);
-  wall2.vertex(6.5, 4.5);
-  wall2.vertex(6.5, 3.5);
-  wall2.vertex(12.5, 3.5);
-  wall2.vertex(12.5, 7.5);
-  wall2.vertex(11, 7.5);
-  wall2.setStaticBody(true);
-  wall2.setFill(0,0,255);
-  world.add(wall2);
-  
-  wall3 = new FPoly();
-  wall3.vertex(11, 6);
-  wall3.vertex(11, 10);
-  wall3.vertex(9, 10);
-  wall3.vertex(9, 9.5);
-  wall3.vertex(10.5, 9.5);
-  wall3.vertex(10.5, 6);
-  wall3.setStaticBody(true);
-  wall3.setFill(0,0,255);
-  world.add(wall3);
-  
-  wall4 = new FPoly();
-  wall4.vertex(11, 11);
-  wall4.vertex(9, 11);
-  wall4.vertex(9, 12.5);
-  wall4.vertex(9.5, 12.5);
-  wall4.vertex(9.5, 11.5);
-  wall4.vertex(11, 11.5);
-  wall4.setStaticBody(true);
-  wall4.setFill(0,0,255);
-  world.add(wall4);
-  
-  wall5 = new FPoly();
-  wall5.vertex(7, 12.5);
-  wall5.vertex(7, 10);
-  wall5.vertex(7.5, 10);
-  wall5.vertex(7.5, 12.5);
-  wall5.setStaticBody(true);
-  wall5.setFill(0,0,255);
-  world.add(wall5);
-  
-  wall6 = new FPoly();
-  wall6.vertex(3.5, 9);
-  wall6.vertex(3.5, 10.5);
-  wall6.vertex(5, 10.5);
-  wall6.vertex(5, 10);
-  wall6.vertex(4, 10);
-  wall6.vertex(4, 9);
-  wall6.setStaticBody(true);
-  wall6.setFill(0,0,255);
-  world.add(wall6);
-  
-  wall11 = new FPoly();
-  wall11.vertex(5.5, 9.5);
-  wall11.vertex(5.5, 7);
-  wall11.vertex(6.5, 7);
-  wall11.vertex(6.5, 6.5);
-  wall11.vertex(5, 6.5);
-  wall11.vertex(5, 9.5);
-  
-
-  wall11.setStaticBody(true);
-  wall11.setFill(0,0,255);
-  world.add(wall11);
-  
-  wall7 = new FPoly();
-  wall7.vertex(2.5, 3);
-  wall7.vertex(4.5, 3);
-  wall7.vertex(4.5, 5);
-  wall7.vertex(4, 5);
-  wall7.vertex(4, 3.5);
-  wall7.vertex(2.5, 3.5);
-  wall7.setStaticBody(true);
-  wall7.setFill(0,0,255);
-  world.add(wall7);
-  
-  wall8 = new FPoly();
-  wall8.vertex(8, 4.5);
-  wall8.vertex(8.5, 4.5);
-  wall8.vertex(8.5, 7);
-  wall8.vertex(8, 7);
-  wall8.setStaticBody(true);
-  wall8.setFill(0,0,255);
-  world.add(wall8);
-    
-  wall9 = new FPoly();
-  wall9.vertex(5.5, 8);
-  wall9.vertex(10.5, 8);
-  wall9.vertex(10.5, 8.5);
-  wall9.vertex(5.5, 8.5);
-  wall9.setStaticBody(true);
-  wall9.setFill(0,0,255);
-  world.add(wall9);
-  
-  wall10 = new FPoly();
-  wall10.vertex(2.5, 6);
-  wall10.vertex(4, 6);
-  wall10.vertex(4, 8);
-  wall10.vertex(3.5, 8);
-  wall10.vertex(3.5, 6.5);
-  wall10.vertex(2.5, 6.5);
-  wall10.setStaticBody(true);
-  wall10.setFill(0,0,255);
-  world.add(wall10);
+  println(map.length);
+  for (int i = 0; i<26; i++) {
+    for (int j = 0; j < 25; j++){
+      if (map[j][i]==1){
+        FPoly wall = new FPoly();
+        float x = (float)i/2 + 1;
+        float y = (float)j/2 + 2 ;
+        
+        wall.vertex(x,y);
+        wall.vertex(x,y+0.5);
+        wall.vertex(x+0.5,(y)+0.5);
+        wall.vertex((x)+0.5,(y));
+        wall.setStaticBody(true);
+        wall.setFill(0,0,0);
+        walls.add(wall);
+        world.add(walls.get(walls.size()-1));
+      }
+    }
+  }
+  //world.add(wall1);*/
   
   /* Setup the Virtual Coupling Contact Rendering Technique */
-  s                   = new HVirtualCoupling((0.5)); 
+  s                   = new HVirtualCoupling((0.4)); 
   s.h_avatar.setDensity(2); 
   s.h_avatar.setFill(255,200,0); 
-  s.init(world, edgeTopLeftX+worldWidth/2, edgeTopLeftY+5); 
+  s.init(world, edgeTopLeftX+worldWidth/2, edgeTopLeftY+2); 
   
   /* World conditions setup */
-  world.setGravity((0.0), (300.0)); //1000 cm/(s^2)
-  world.setEdges((edgeTopLeftX), (edgeTopLeftY), (edgeBottomRightX), (edgeBottomRightY)); 
-  world.setEdgesRestitution(.4);
-  world.setEdgesFriction(0.5);
+  //world.setGravity((0.0), (300.0)); //1000 cm/(s^2)
+  //world.setEdges((edgeTopLeftX), (edgeTopLeftY), (edgeBottomRightX), (edgeBottomRightY)); 
+  //world.setEdgesRestitution(.4);
+  //world.setEdgesFriction(0.5);
   
   world.draw();
   
